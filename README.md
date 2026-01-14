@@ -1,2 +1,9 @@
 # Equipo-4-
-Materia Desarrollo Full Stack 
+## Materia Desarrollo Full Stack 
+## Integrantes
+-Sebastián Moreno Santiago
+-Juan Diego Coa Guzmán
+-Daniel Rubio Camacho
+-Ixchel García Palomeque 
+## Actividad 1 
+
