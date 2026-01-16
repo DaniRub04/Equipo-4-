@@ -4,6 +4,6 @@
 -Sebastián Moreno Santiago
 -Juan Diego Coa Guzmán
 -Daniel Rubio Camacho
--Ixchel García Palomeque 
+-Ixchel García Palomec
 ## Actividad 1 
 
