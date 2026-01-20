@@ -40,4 +40,28 @@ Then run the app at the root of the repository:
 ```bash
 vercel dev
 ```
+<<<<<<< HEAD
 >>>>>>> b9ac06c (Initial commit)
+=======
+
+## Proyecto Express en Vercel
+Proyecto para materia: rutas web + API JSON + health check.
+
+### Tecnologías
+- Node.js
+- Express
+- TypeScript
+- Vercel
+
+### Ejecutar local
+pnpm install
+pnpm dev
+
+### Endpoints
+- / -> Home
+- /about -> About
+- /api-data -> JSON
+- /healthz -> Health check
+
+### Demo
+- Link de Vercel -> https://express-js-on-vercel-nu-rust-75.vercel.app/ 
