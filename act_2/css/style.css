@@ -304,3 +304,16 @@ label{ font-size: 12px; color: var(--muted); }
   .item{ flex-direction:column; }
   .itemActions .btn{ flex:1; }
 }
+.phoneGroup{
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.phoneGroup select{
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+}
