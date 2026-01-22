@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestor de Contactos</title>
+
+  <!-- Font Awesome (icons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div>
+        <h1 class="title">Contactos</h1>
+        <p class="subtitle">Gestor con POO, DOM, ES6+ y LocalStorage</p>
+      </div>
+    </header>
+
+    <!-- Formulario: input + botón (cumple consigna) -->
+    <section class="card">
+      <form id="formContacto" class="form" autocomplete="off">
+        <div class="grid">
+          <div class="field">
+            <label for="nombre">Nombre</label>
+            <div class="inputIcon">
+              <i class="fa-solid fa-user"></i>
+              <input id="nombre" type="text" placeholder="Ej. Ana López" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="telefono">Teléfono</label>
+            <div class="inputIcon">
+              <i class="fa-solid fa-phone"></i>
+              <input id="telefono" type="tel" placeholder="Ej. 55 1234 5678" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="email">Correo</label>
+            <div class="inputIcon">
+              <i class="fa-solid fa-envelope"></i>
+              <input id="email" type="email" placeholder="Ej. ana@email.com" />
+            </div>
+          </div>
+        </div>
+
+        <div class="actionsRow">
+          <button id="btnAgregar" class="btn btnPrimary" type="submit">
+            <i class="fa-solid fa-plus"></i>
+            Agregar
+          </button>
+
+          <p id="mensaje" class="mensaje" aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+
+    <!-- Barra de herramientas -->
+    <section class="card">
+      <div class="toolbar">
+        <div class="searchWrap">
+          <div class="inputIcon inputIcon--search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input id="buscador" type="text" placeholder="Buscar por nombre o teléfono..." />
+          </div>
+          <small class="hint">Tip: escribe nombre o número</small>
+        </div>
+
+        <div class="toolbarRight">
+          <span id="contador" class="contador">0 contactos</span>
+
+          <button id="btnOrdenar" class="btn btnGhost" type="button" title="Ordenar A–Z">
+            <i class="fa-solid fa-arrow-down-a-z"></i>
+            Ordenar
+          </button>
+
+          <button id="btnBorrarTodo" class="btn btnDanger" type="button">
+            <i class="fa-solid fa-trash"></i>
+            Borrar todo
+          </button>
+        </div>
+      </div>
+
+      <!-- Lista UL (cumple consigna) -->
+      <ul id="listaTareas" class="lista"></ul>
+    </section>
+  </main>
+
+  <!-- Modal de edición -->
+  <div id="modalOverlay" class="modalOverlay hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modalHeader">
+        <h2 id="modalTitle" class="modalTitle">
+          <i class="fa-solid fa-pen-to-square"></i>
+          Editar contacto
+        </h2>
+        <button id="btnCerrarModal" class="iconBtn" type="button" aria-label="Cerrar">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="formEditar" class="modalBody" autocomplete="off">
+        <input type="hidden" id="editId" />
+
+        <div class="field">
+          <label for="editNombre">Nombre</label>
+          <div class="inputIcon">
+            <i class="fa-solid fa-user"></i>
+            <input id="editNombre" type="text" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="editTelefono">Teléfono</label>
+          <div class="inputIcon">
+            <i class="fa-solid fa-phone"></i>
+            <input id="editTelefono" type="tel" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="editEmail">Correo</label>
+          <div class="inputIcon">
+            <i class="fa-solid fa-envelope"></i>
+            <input id="editEmail" type="email" />
+          </div>
+        </div>
+
+        <p id="mensajeModal" class="mensaje" aria-live="polite"></p>
+
+        <div class="modalFooter">
+          <button class="btn btnGhost" id="btnCancelar" type="button">Cancelar</button>
+          <button class="btn btnPrimary" type="submit">
+            <i class="fa-solid fa-check"></i>
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
