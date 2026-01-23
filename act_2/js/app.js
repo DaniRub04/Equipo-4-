@@ -11,7 +11,7 @@ const setMensaje = (el, texto, tipo = "") => {
 };
 
 const normalize = (s) => (s || "").toString().trim().toLowerCase();
-const normalizePhone = (s) => (s || "").toString().replace(/[^\d]/g, "");
+const digitsOnly = (s) => (s || "").toString().replace(/[^\d]/g, "");
 
 // =====================
 // Clases (POO)
@@ -20,7 +20,7 @@ class Tarea {
   constructor(nombre, estado = false, telefono = "", email = "") {
     this.id = crypto.randomUUID();
     this.nombre = nombre.trim();
-    this.telefono = telefono.trim(); // +52 55 1234 5678
+    this.telefono = telefono.trim(); // ejemplo: +52 55 1234 5678
     this.email = email.trim();
     this.estado = Boolean(estado);
   }
@@ -72,9 +72,14 @@ class GestorDeTareas {
     const data = JSON.parse(localStorage.getItem("tareas") || "[]");
     this.tareas = data.map((obj) => {
       const t = new Tarea(obj.nombre, obj.estado, obj.telefono, obj.email);
-      t.id = obj.id;
+      t.id = obj.id; // conservar id
       return t;
     });
+  }
+
+  borrarTodo() {
+    this.tareas = [];
+    this.guardar();
   }
 }
 
@@ -105,27 +110,32 @@ const validar = ({ nombre, telefono }) => {
 };
 
 // =====================
-// Render
+// Render (con filtro por nombre o número)
 // =====================
 const render = () => {
-  const filtro = normalize(buscador.value);
-  const phoneFiltro = normalizePhone(buscador.value);
+  const q = normalize(buscador?.value);
+  const qNum = digitsOnly(buscador?.value);
 
   let tareas = gestor.tareas;
 
-  if (filtro) {
+  // Filtrado: nombre (texto) o teléfono (solo números)
+  if (q) {
     tareas = tareas.filter((t) => {
-      return (
-        normalize(t.nombre).includes(filtro) ||
-        normalizePhone(t.telefono).includes(phoneFiltro)
-      );
+      const nombre = normalize(t.nombre);
+      const telDigits = digitsOnly(t.telefono);
+
+      const matchNombre = nombre.includes(q);
+      const matchTelefono = qNum ? telDigits.includes(qNum) : false;
+
+      return matchNombre || matchTelefono;
     });
   }
 
+  // Pintar lista
   lista.innerHTML = "";
 
   tareas.forEach((t) => {
-    const inicial = (t.nombre[0] || "?").toUpperCase();
+    const inicial = ((t.nombre || "?").trim()[0] || "?").toUpperCase();
 
     const li = document.createElement("li");
     li.className = "item";
@@ -162,6 +172,7 @@ const render = () => {
     lista.appendChild(li);
   });
 
+  // Contador (muestra lo que se está viendo, ya filtrado)
   contador.textContent = `${tareas.length} contacto${tareas.length === 1 ? "" : "s"}`;
 };
 
@@ -172,21 +183,19 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const nombre = inputNombre.value;
-  const lada = selectLada.value;
+  const lada = selectLada ? selectLada.value : "";
   const telefono = inputTelefono.value;
   const email = inputEmail.value;
 
   const error = validar({ nombre, telefono });
   if (error) return setMensaje(mensaje, error, "error");
 
-  // 👉 AQUÍ SE UNE LA LADA + TELÉFONO
-  const telefonoCompleto = `${lada} ${telefono}`;
+  const telefonoCompleto = lada ? `${lada} ${telefono}` : telefono;
 
   const nueva = new Tarea(nombre, false, telefonoCompleto, email);
   gestor.agregar(nueva);
 
   setMensaje(mensaje, "Contacto agregado correctamente.", "ok");
-
   form.reset();
   render();
 });
@@ -202,6 +211,7 @@ lista.addEventListener("click", (e) => {
     gestor.eliminar(id);
     setMensaje(mensaje, "Contacto eliminado.", "ok");
     render();
+    return;
   }
 
   if (accion === "editar") {
@@ -211,11 +221,15 @@ lista.addEventListener("click", (e) => {
     const nuevoNombre = prompt("Nombre:", t.nombre);
     if (nuevoNombre === null) return;
 
-    const nuevoTelefono = prompt("Teléfono (con LADA):", t.telefono);
+    // Aquí lo editas como string completo (incluye LADA). Es simple y funciona.
+    const nuevoTelefono = prompt("Teléfono (con LADA, ej. +52 55 1234 5678):", t.telefono);
     if (nuevoTelefono === null) return;
 
     const nuevoEmail = prompt("Correo:", t.email);
     if (nuevoEmail === null) return;
+
+    const err = validar({ nombre: nuevoNombre, telefono: nuevoTelefono });
+    if (err) return setMensaje(mensaje, err, "error");
 
     gestor.editar(id, {
       nombre: nuevoNombre,
@@ -223,6 +237,7 @@ lista.addEventListener("click", (e) => {
       email: nuevoEmail,
     });
 
+    setMensaje(mensaje, "Contacto actualizado.", "ok");
     render();
   }
 });
@@ -238,13 +253,14 @@ lista.addEventListener("change", (e) => {
 buscador.addEventListener("input", render);
 
 btnBorrarTodo.addEventListener("click", () => {
-  if (!gestor.tareas.length) return;
+  if (!gestor.tareas.length) return setMensaje(mensaje, "No hay contactos para borrar.", "error");
 
   const ok = confirm("¿Seguro que deseas borrar todos los contactos?");
   if (!ok) return;
 
-  gestor.tareas = [];
-  gestor.guardar();
+  gestor.borrarTodo();
+  setMensaje(mensaje, "Lista borrada.", "ok");
+  buscador.value = "";
   render();
 });
 
