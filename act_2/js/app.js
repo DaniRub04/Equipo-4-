@@ -184,13 +184,20 @@ form.addEventListener("submit", (e) => {
 
   const nombre = inputNombre.value;
   const lada = selectLada ? selectLada.value : "";
-  const telefono = inputTelefono.value;
+  const telefonoLimpio = inputTelefono.value.replace(/\D/g, "");
   const email = inputEmail.value;
 
-  const error = validar({ nombre, telefono });
-  if (error) return setMensaje(mensaje, error, "error");
+  // Validación básica
+  if (!nombre.trim()) return setMensaje(mensaje, "El nombre no puede estar vacío.", "error");
+  if (!telefonoLimpio) return setMensaje(mensaje, "El teléfono no puede estar vacío.", "error");
 
-  const telefonoCompleto = lada ? `${lada} ${telefono}` : telefono;
+  // ✅ Validación 10 dígitos
+  if (telefonoLimpio.length !== 10) {
+    return setMensaje(mensaje, "El teléfono debe tener exactamente 10 dígitos.", "error");
+  }
+
+  // Unir lada + teléfono limpio
+  const telefonoCompleto = lada ? `${lada} ${telefonoLimpio}` : telefonoLimpio;
 
   const nueva = new Tarea(nombre, false, telefonoCompleto, email);
   gestor.agregar(nueva);
@@ -199,6 +206,7 @@ form.addEventListener("submit", (e) => {
   form.reset();
   render();
 });
+
 
 lista.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-accion]");
