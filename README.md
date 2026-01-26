@@ -1,9 +1,5 @@
 # 🚀 Equipo 4 – Desarrollo Full Stack
 
-
-::contentReference[oaicite:0]{index=0}
-
-
 ## 📚 Materia
 **Desarrollo Full Stack**
 
