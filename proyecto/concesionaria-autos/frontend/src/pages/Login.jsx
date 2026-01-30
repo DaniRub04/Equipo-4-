@@ -1,13 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 
 export default function Login() {
   const nav = useNavigate();
-  const [email, setEmail] = useState("daniel@test.com");
+
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
+
+  // Evita que quede algo “pegado” por renders/hot reload
+  useEffect(() => {
+    setEmail("");
+    setPassword("");
+  }, []);
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -18,38 +25,66 @@ export default function Login() {
       await api.login({ email, password });
       nav("/dashboard");
     } catch (err) {
-      setMsg(err.message);
+      setMsg(err.message || "Error al iniciar sesión");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div style={{ maxWidth: 520, margin: "80px auto", padding: 20 }}>
-      <h1>Concesionaria Autos</h1>
-      <p>API: {import.meta.env.VITE_API_URL}</p>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+      }}
+    >
+      <div style={{ width: "100%", maxWidth: 520, padding: 20 }}>
+        <h1>Concesionaria Autos</h1>
+        <p>API: {import.meta.env.VITE_API_URL}</p>
 
-      <h2>Login</h2>
+        <h2>Login</h2>
 
-      <form onSubmit={onSubmit} style={{ display: "grid", gap: 10 }}>
-        <input
-          placeholder="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          placeholder="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <form
+          onSubmit={onSubmit}
+          style={{ display: "grid", gap: 10 }}
+          autoComplete="off"
+        >
+          <input
+            type="email"
+            name="username"
+            placeholder="Correo"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="username"
+            // Truco anti-autofill en Chromium/Brave:
+            readOnly
+            onFocus={(e) => e.target.removeAttribute("readonly")}
+            required
+          />
 
-        <button disabled={loading}>
-          {loading ? "Entrando..." : "Entrar"}
-        </button>
+          <input
+            type="password"
+            name="password"
+            placeholder="Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+            // Truco anti-autofill en Chromium/Brave:
+            readOnly
+            onFocus={(e) => e.target.removeAttribute("readonly")}
+            required
+          />
 
-        {msg && <p style={{ color: "tomato" }}>❌ {msg}</p>}
-      </form>
+          <button disabled={loading}>
+            {loading ? "Entrando..." : "Entrar"}
+          </button>
+
+          {msg && <p style={{ color: "tomato" }}>❌ {msg}</p>}
+        </form>
+      </div>
     </div>
   );
 }

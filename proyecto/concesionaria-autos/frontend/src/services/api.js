@@ -1,5 +1,8 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
+/* =======================
+   Token helpers
+======================= */
 function getToken() {
     return localStorage.getItem("token");
 }
@@ -12,35 +15,58 @@ function clearToken() {
     localStorage.removeItem("token");
 }
 
+export function isLoggedIn() {
+    return !!getToken();
+}
+
+/* =======================
+   Request helper
+======================= */
 async function request(path, options = {}) {
     const token = getToken();
 
     const res = await fetch(`${API_URL}${path}`, {
         ...options,
         headers: {
-            "Content-Type": "application/json",
+            ...(options.body ? { "Content-Type": "application/json" } : {}),
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...(options.headers || {}),
         },
     });
 
-    const data = await res.json().catch(() => ({}));
+    // No Content
+    if (res.status === 204) return null;
+
+    // Intenta JSON, si no, texto
+    const contentType = res.headers.get("content-type") || "";
+    const data = contentType.includes("application/json")
+        ? await res.json().catch(() => ({}))
+        : await res.text().catch(() => "");
 
     if (!res.ok) {
-        const msg = data?.message || `HTTP ${res.status}`;
-        throw new Error(msg);
+        const message =
+            typeof data === "object"
+                ? data?.message || `HTTP ${res.status}`
+                : data || `HTTP ${res.status}`;
+        throw new Error(message);
     }
 
     return data;
 }
 
+/* =======================
+   API pública
+======================= */
 export const api = {
-    // salud
+    // Salud
     health: () => request("/health"),
 
-    // auth
+    // Auth
     register: (payload) =>
-        request("/auth/register", { method: "POST", body: JSON.stringify(payload) }),
+        request("/auth/register", {
+            method: "POST",
+            body: JSON.stringify(payload),
+        }),
 
     login: async (payload) => {
         const data = await request("/auth/login", {
@@ -48,16 +74,20 @@ export const api = {
             body: JSON.stringify(payload),
         });
 
-        // AJUSTE: si tu backend devuelve { token } o { access_token }
-        const token = data.token || data.access_token;
-        if (!token) throw new Error("Login OK pero no llegó token");
+        // Soporta { token } o { access_token }
+        const token = data?.token || data?.access_token;
+        if (!token) {
+            throw new Error("Login exitoso pero no se recibió token");
+        }
 
         setToken(token);
         return data;
     },
 
-    logout: () => clearToken(),
+    logout: () => {
+        clearToken();
+    },
 
-    // ruta protegida
+    // Ruta protegida (ajusta si tu backend usa otra)
     me: () => request("/profile/me"),
 };
